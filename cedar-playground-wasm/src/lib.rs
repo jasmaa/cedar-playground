@@ -1,9 +1,14 @@
-use std::{error::Error, str::FromStr};
+use std::{error::Error, panic, str::FromStr};
 
 use cedar_policy::{
     Authorizer, Context, Decision, Entities, EntityUid, PolicySet, Request, Response, Schema,
 };
 use wasm_bindgen::prelude::*;
+
+#[wasm_bindgen(js_name=initConsoleErrorPanicHook)]
+pub fn init_console_error_panic_hook() {
+    panic::set_hook(Box::new(console_error_panic_hook::hook));
+}
 
 #[wasm_bindgen(getter_with_clone)]
 pub struct AuthorizeInput {

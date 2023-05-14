@@ -3,7 +3,21 @@ import init, {
   authorize,
   AuthorizeInput,
   AuthorizeOutputResponse,
+  initConsoleErrorPanicHook,
 } from "cedar-playground-wasm/cedar_playground_wasm";
+import {
+  Input,
+  Container,
+  FormField,
+  Header,
+  SpaceBetween,
+  Box,
+  Grid,
+  Textarea,
+  Button,
+  StatusIndicator,
+  Flashbar,
+} from "@cloudscape-design/components";
 
 const INITIAL_PRINCIPAL = `User::"alice"`;
 const INITIAL_ACTION = `Action::"view"`;
@@ -44,83 +58,136 @@ export default function App() {
   const [policySet, setPolicySet] = useState(INITIAL_POLICY_SET);
   const [entities, setEntities] = useState(INITIAL_ENTITIES);
   const [response, setResponse] = useState<AuthorizeOutputResponse>();
-  const [_errorMsg, _setErrorMsg] = useState("");
+  const [isLoadingResponse, setIsLoadingResponse] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
     (async () => {
       await init();
+      await initConsoleErrorPanicHook();
     })();
-  });
+  }, []);
 
   return (
-    <>
-      <input
-        onChange={(e) => {
-          setPrincipal(e.target.value);
-        }}
-        value={principal}
-      />
-      <input
-        onChange={(e) => {
-          setAction(e.target.value);
-        }}
-        value={action}
-      />
-      <input
-        onChange={(e) => {
-          setResource(e.target.value);
-        }}
-        value={resource}
-      />
-      <textarea
-        onChange={(e) => {
-          setContext(e.target.value);
-        }}
-      >
-        {context}
-      </textarea>
-      <textarea
-        onChange={(e) => {
-          setPolicySet(e.target.value);
-        }}
-      >
-        {policySet}
-      </textarea>
-      <textarea
-        onChange={(e) => {
-          setEntities(e.target.value);
-        }}
-      >
-        {entities}
-      </textarea>
-      <button
-        onClick={async () => {
-          const res = authorize(
-            new AuthorizeInput(
-              principal,
-              action,
-              resource,
-              context,
-              policySet,
-              entities,
-              undefined
-            )
-          );
-          if (!res.error) {
-            setResponse(res.response!);
-          } else {
-            console.log(res.error);
-          }
-        }}
-      >
-        Test
-      </button>
-      {response && (
-        <>
-          <p>{response.decision}</p>
-          <p>{response.diagnostics}</p>
-        </>
-      )}
-    </>
+    <Box margin="m">
+      <SpaceBetween size="m" direction="vertical">
+        <Grid gridDefinition={[{ colspan: 6 }, { colspan: 6 }]}>
+          <Container header={<Header variant="h2">Configuration</Header>}>
+            <SpaceBetween size="m" direction="vertical">
+              <FormField label="Policy Set">
+                <Textarea
+                  onChange={(e) => {
+                    setPolicySet(e.detail.value);
+                  }}
+                  value={policySet}
+                />
+              </FormField>
+              <FormField label="Entities">
+                <Textarea
+                  onChange={(e) => {
+                    setEntities(e.detail.value);
+                  }}
+                  value={entities}
+                />
+              </FormField>
+            </SpaceBetween>
+          </Container>
+          <Container header={<Header variant="h2">Request</Header>}>
+            <SpaceBetween size="m" direction="vertical">
+              <FormField label="Principal">
+                <Input
+                  onChange={(e) => {
+                    setPrincipal(e.detail.value);
+                  }}
+                  value={principal}
+                />
+              </FormField>
+              <FormField label="Action">
+                <Input
+                  onChange={(e) => {
+                    setAction(e.detail.value);
+                  }}
+                  value={action}
+                />
+              </FormField>
+              <FormField label="Resource">
+                <Input
+                  onChange={(e) => {
+                    setResource(e.detail.value);
+                  }}
+                  value={resource}
+                />
+              </FormField>
+              <FormField label="Context">
+                <Textarea
+                  onChange={(e) => {
+                    setContext(e.detail.value);
+                  }}
+                  value={context}
+                />
+              </FormField>
+            </SpaceBetween>
+          </Container>
+        </Grid>
+        <Container header={<Header variant="h2">Response</Header>}>
+          <SpaceBetween size="m" direction="vertical">
+            <Button
+              onClick={() => {
+                setResponse(undefined);
+                setErrorMsg("");
+                setIsLoadingResponse(true);
+                (async () => {
+                  const res = authorize(
+                    new AuthorizeInput(
+                      principal,
+                      action,
+                      resource,
+                      context,
+                      policySet,
+                      entities,
+                      undefined
+                    )
+                  );
+                  if (!res.error) {
+                    setResponse(res.response!);
+                  } else {
+                    setErrorMsg(res.error);
+                  }
+                  setIsLoadingResponse(false);
+                })();
+              }}
+            >
+              Test!
+            </Button>
+            {errorMsg && (
+              <Flashbar
+                items={[
+                  {
+                    header: "Failed to process request",
+                    type: "error",
+                    content: errorMsg,
+                  },
+                ]}
+              />
+            )}
+            {!isLoadingResponse && response ? (
+              response.decision === "ALLOW" ? (
+                <StatusIndicator type="success">
+                  {response.decision}
+                </StatusIndicator>
+              ) : response.decision === "DENY" ? (
+                <StatusIndicator type="error">
+                  {response.decision}
+                </StatusIndicator>
+              ) : (
+                <StatusIndicator type="loading">Unknown</StatusIndicator>
+              )
+            ) : isLoadingResponse ? (
+              <StatusIndicator type="loading">Loading...</StatusIndicator>
+            ) : null}
+          </SpaceBetween>
+        </Container>
+      </SpaceBetween>
+    </Box>
   );
 }
