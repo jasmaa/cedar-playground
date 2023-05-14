@@ -26,5 +26,5 @@ jobs:
         run: yarn build
       - uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: ./cedar-playground/dist
+          folder: ./cedar-playground/dist/cedar-playground
           single-commit: true
