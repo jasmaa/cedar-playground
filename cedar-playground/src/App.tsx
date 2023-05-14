@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import ace from 'ace-builds';
 import init, {
   authorize,
   AuthorizeInput,
@@ -13,11 +14,12 @@ import {
   SpaceBetween,
   Box,
   Grid,
-  Textarea,
   Button,
   StatusIndicator,
   Flashbar,
   Form,
+  CodeEditor,
+  CodeEditorProps,
 } from "@cloudscape-design/components";
 
 const INITIAL_PRINCIPAL = `User::"alice"`;
@@ -62,6 +64,8 @@ export default function App() {
   const [isLoadingResponse, setIsLoadingResponse] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
+  const [preferences, setPreferences] = useState<CodeEditorProps.Preferences>();
+
   useEffect(() => {
     (async () => {
       await init();
@@ -69,66 +73,102 @@ export default function App() {
     })();
   }, []);
 
+  const codeEditorThemes: CodeEditorProps.AvailableThemes = {
+    light: ["tomorrow_night_bright"],
+    dark: ["dawn"],
+  };
+
+  const codeEditorI18nStrings: CodeEditorProps.I18nStrings = {
+    loadingState: "Loading code editor",
+    errorState: "There was an error loading the code editor.",
+    errorStateRecovery: "Retry",
+    editorGroupAriaLabel: "Code editor",
+    statusBarGroupAriaLabel: "Status bar",
+    cursorPosition: (row, column) => `Ln ${row}, Col ${column}`,
+    errorsTab: "Errors",
+    warningsTab: "Warnings",
+    preferencesButtonAriaLabel: "Preferences",
+    paneCloseButtonAriaLabel: "Close",
+    preferencesModalHeader: "Preferences",
+    preferencesModalCancel: "Cancel",
+    preferencesModalConfirm: "Confirm",
+    preferencesModalWrapLines: "Wrap lines",
+    preferencesModalTheme: "Theme",
+    preferencesModalLightThemes: "Light themes",
+    preferencesModalDarkThemes: "Dark themes",
+  };
+
   return (
     <Box margin="m">
-
-      <Grid gridDefinition={[{ colspan: 6 }, { colspan: 6 }]}>
+      <Grid gridDefinition={[{ colspan: 8 }, { colspan: 4 }]}>
         <SpaceBetween size="l" direction="vertical">
           <Container header={<Header variant="h2">Policy Set</Header>}>
             <SpaceBetween size="m" direction="vertical">
-              <Textarea
+              <CodeEditor
+                ace={ace}
+                language=""
+                preferences={preferences}
+                onPreferencesChange={(e) => { setPreferences(e.detail) }}
                 onChange={(e) => {
                   setPolicySet(e.detail.value);
                 }}
                 value={policySet}
-                rows={10}
+                i18nStrings={codeEditorI18nStrings}
+                themes={codeEditorThemes}
               />
             </SpaceBetween>
           </Container>
           <Container header={<Header variant="h2">Entities</Header>}>
-            <SpaceBetween size="m" direction="vertical">
-              <Textarea
-                onChange={(e) => {
-                  setEntities(e.detail.value);
-                }}
-                value={entities}
-                rows={10}
-              />
-            </SpaceBetween>
+            <CodeEditor
+              ace={ace}
+              language="json"
+              preferences={preferences}
+              onPreferencesChange={(e) => { setPreferences(e.detail) }}
+              value={entities}
+              onChange={(e) => {
+                setEntities(e.detail.value);
+              }}
+              i18nStrings={codeEditorI18nStrings}
+              themes={codeEditorThemes}
+            />
           </Container>
         </SpaceBetween>
         <SpaceBetween size="l" direction="vertical">
           <Container header={<Header variant="h2">Request</Header>}>
-            <form onSubmit={(e) => {
-              e.preventDefault();
-              setResponse(undefined);
-              setErrorMsg("");
-              setIsLoadingResponse(true);
-              (async () => {
-                const res = authorize(
-                  new AuthorizeInput(
-                    principal,
-                    action,
-                    resource,
-                    context,
-                    policySet,
-                    entities,
-                    undefined
-                  )
-                );
-                if (!res.error) {
-                  setResponse(res.response!);
-                } else {
-                  setErrorMsg(res.error);
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                setResponse(undefined);
+                setErrorMsg("");
+                setIsLoadingResponse(true);
+                (async () => {
+                  const res = authorize(
+                    new AuthorizeInput(
+                      principal,
+                      action,
+                      resource,
+                      context,
+                      policySet,
+                      entities,
+                      undefined
+                    )
+                  );
+                  if (!res.error) {
+                    setResponse(res.response!);
+                  } else {
+                    setErrorMsg(res.error);
+                  }
+                  setIsLoadingResponse(false);
+                })();
+              }}
+            >
+              <Form
+                actions={
+                  <SpaceBetween size="m" direction="horizontal">
+                    <Button loading={isLoadingResponse}>Test!</Button>
+                  </SpaceBetween>
                 }
-                setIsLoadingResponse(false);
-              })();
-            }}>
-              <Form actions={<SpaceBetween size="m" direction="horizontal">
-                <Button loading={isLoadingResponse}>
-                  Test!
-                </Button>
-              </SpaceBetween>}>
+              >
                 <SpaceBetween size="m" direction="vertical">
                   <FormField label="Principal">
                     <Input
@@ -155,11 +195,17 @@ export default function App() {
                     />
                   </FormField>
                   <FormField label="Context">
-                    <Textarea
+                    <CodeEditor
+                      ace={ace}
+                      language="json"
+                      preferences={preferences}
+                      onPreferencesChange={(e) => { setPreferences(e.detail) }}
                       onChange={(e) => {
                         setContext(e.detail.value);
                       }}
                       value={context}
+                      i18nStrings={codeEditorI18nStrings}
+                      themes={codeEditorThemes}
                     />
                   </FormField>
                 </SpaceBetween>
@@ -193,7 +239,7 @@ export default function App() {
             ) : null}
           </Container>
         </SpaceBetween>
-      </Grid >
-    </Box >
+      </Grid>
+    </Box>
   );
 }

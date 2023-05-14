@@ -12,6 +12,7 @@
   "dependencies": {
     "@cloudscape-design/components": "^3.0.280",
     "@cloudscape-design/global-styles": "^1.0.9",
+    "ace-builds": "^1.20.0",
     "cedar-playground-wasm": "link:../cedar-playground-wasm/pkg",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
