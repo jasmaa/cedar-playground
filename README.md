@@ -11,7 +11,6 @@ WASM:
 
 ```
 cd cedar-playground-wasm
-cargo build
 wasm-pack build --target web
 ```
 
