@@ -9,5 +9,10 @@ export default defineConfig({
   build: {
     outDir: "dist/cedar-playground",
   },
+  server: {
+    fs: {
+      allow: [".", "../cedar-playground-wasm/pkg"],
+    },
+  },
   plugins: [react(), wasm(), topLevelAwait()],
 });

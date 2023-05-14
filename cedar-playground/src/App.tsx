@@ -17,6 +17,7 @@ import {
   Button,
   StatusIndicator,
   Flashbar,
+  Form,
 } from "@cloudscape-design/components";
 
 const INITIAL_PRINCIPAL = `User::"alice"`;
@@ -70,95 +71,102 @@ export default function App() {
 
   return (
     <Box margin="m">
-      <SpaceBetween size="m" direction="vertical">
-        <Grid gridDefinition={[{ colspan: 6 }, { colspan: 6 }]}>
-          <Container header={<Header variant="h2">Configuration</Header>}>
+
+      <Grid gridDefinition={[{ colspan: 6 }, { colspan: 6 }]}>
+        <SpaceBetween size="l" direction="vertical">
+          <Container header={<Header variant="h2">Policy Set</Header>}>
             <SpaceBetween size="m" direction="vertical">
-              <FormField label="Policy Set">
-                <Textarea
-                  onChange={(e) => {
-                    setPolicySet(e.detail.value);
-                  }}
-                  value={policySet}
-                />
-              </FormField>
-              <FormField label="Entities">
-                <Textarea
-                  onChange={(e) => {
-                    setEntities(e.detail.value);
-                  }}
-                  value={entities}
-                />
-              </FormField>
+              <Textarea
+                onChange={(e) => {
+                  setPolicySet(e.detail.value);
+                }}
+                value={policySet}
+                rows={10}
+              />
             </SpaceBetween>
           </Container>
+          <Container header={<Header variant="h2">Entities</Header>}>
+            <SpaceBetween size="m" direction="vertical">
+              <Textarea
+                onChange={(e) => {
+                  setEntities(e.detail.value);
+                }}
+                value={entities}
+                rows={10}
+              />
+            </SpaceBetween>
+          </Container>
+        </SpaceBetween>
+        <SpaceBetween size="l" direction="vertical">
           <Container header={<Header variant="h2">Request</Header>}>
-            <SpaceBetween size="m" direction="vertical">
-              <FormField label="Principal">
-                <Input
-                  onChange={(e) => {
-                    setPrincipal(e.detail.value);
-                  }}
-                  value={principal}
-                />
-              </FormField>
-              <FormField label="Action">
-                <Input
-                  onChange={(e) => {
-                    setAction(e.detail.value);
-                  }}
-                  value={action}
-                />
-              </FormField>
-              <FormField label="Resource">
-                <Input
-                  onChange={(e) => {
-                    setResource(e.detail.value);
-                  }}
-                  value={resource}
-                />
-              </FormField>
-              <FormField label="Context">
-                <Textarea
-                  onChange={(e) => {
-                    setContext(e.detail.value);
-                  }}
-                  value={context}
-                />
-              </FormField>
-            </SpaceBetween>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              setResponse(undefined);
+              setErrorMsg("");
+              setIsLoadingResponse(true);
+              (async () => {
+                const res = authorize(
+                  new AuthorizeInput(
+                    principal,
+                    action,
+                    resource,
+                    context,
+                    policySet,
+                    entities,
+                    undefined
+                  )
+                );
+                if (!res.error) {
+                  setResponse(res.response!);
+                } else {
+                  setErrorMsg(res.error);
+                }
+                setIsLoadingResponse(false);
+              })();
+            }}>
+              <Form actions={<SpaceBetween size="m" direction="horizontal">
+                <Button loading={isLoadingResponse}>
+                  Test!
+                </Button>
+              </SpaceBetween>}>
+                <SpaceBetween size="m" direction="vertical">
+                  <FormField label="Principal">
+                    <Input
+                      onChange={(e) => {
+                        setPrincipal(e.detail.value);
+                      }}
+                      value={principal}
+                    />
+                  </FormField>
+                  <FormField label="Action">
+                    <Input
+                      onChange={(e) => {
+                        setAction(e.detail.value);
+                      }}
+                      value={action}
+                    />
+                  </FormField>
+                  <FormField label="Resource">
+                    <Input
+                      onChange={(e) => {
+                        setResource(e.detail.value);
+                      }}
+                      value={resource}
+                    />
+                  </FormField>
+                  <FormField label="Context">
+                    <Textarea
+                      onChange={(e) => {
+                        setContext(e.detail.value);
+                      }}
+                      value={context}
+                    />
+                  </FormField>
+                </SpaceBetween>
+              </Form>
+            </form>
           </Container>
-        </Grid>
-        <Container header={<Header variant="h2">Response</Header>}>
-          <SpaceBetween size="m" direction="vertical">
-            <Button
-              onClick={() => {
-                setResponse(undefined);
-                setErrorMsg("");
-                setIsLoadingResponse(true);
-                (async () => {
-                  const res = authorize(
-                    new AuthorizeInput(
-                      principal,
-                      action,
-                      resource,
-                      context,
-                      policySet,
-                      entities,
-                      undefined
-                    )
-                  );
-                  if (!res.error) {
-                    setResponse(res.response!);
-                  } else {
-                    setErrorMsg(res.error);
-                  }
-                  setIsLoadingResponse(false);
-                })();
-              }}
-            >
-              Test!
-            </Button>
+          <Container header={<Header variant="h2">Response</Header>}>
             {errorMsg && (
               <Flashbar
                 items={[
@@ -170,7 +178,7 @@ export default function App() {
                 ]}
               />
             )}
-            {!isLoadingResponse && response ? (
+            {response ? (
               response.decision === "ALLOW" ? (
                 <StatusIndicator type="success">
                   {response.decision}
@@ -182,12 +190,10 @@ export default function App() {
               ) : (
                 <StatusIndicator type="loading">Unknown</StatusIndicator>
               )
-            ) : isLoadingResponse ? (
-              <StatusIndicator type="loading">Loading...</StatusIndicator>
             ) : null}
-          </SpaceBetween>
-        </Container>
-      </SpaceBetween>
-    </Box>
+          </Container>
+        </SpaceBetween>
+      </Grid >
+    </Box >
   );
 }
