@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import ace from 'ace-builds';
+import ace from './ace';
 import init, {
   authorize,
   AuthorizeInput,
@@ -106,7 +106,7 @@ export default function App() {
             <SpaceBetween size="m" direction="vertical">
               <CodeEditor
                 ace={ace}
-                language=""
+                language="cedar"
                 preferences={preferences}
                 onPreferencesChange={(e) => { setPreferences(e.detail) }}
                 onChange={(e) => {
