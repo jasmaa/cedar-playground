@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import ace from './ace';
+import ace from "./ace";
 import init, {
   authorize,
   AuthorizeInput,
@@ -108,7 +108,9 @@ export default function App() {
                 ace={ace}
                 language="cedar"
                 preferences={preferences}
-                onPreferencesChange={(e) => { setPreferences(e.detail) }}
+                onPreferencesChange={(e) => {
+                  setPreferences(e.detail);
+                }}
                 onChange={(e) => {
                   setPolicySet(e.detail.value);
                 }}
@@ -123,7 +125,9 @@ export default function App() {
               ace={ace}
               language="json"
               preferences={preferences}
-              onPreferencesChange={(e) => { setPreferences(e.detail) }}
+              onPreferencesChange={(e) => {
+                setPreferences(e.detail);
+              }}
               value={entities}
               onChange={(e) => {
                 setEntities(e.detail.value);
@@ -199,7 +203,9 @@ export default function App() {
                       ace={ace}
                       language="json"
                       preferences={preferences}
-                      onPreferencesChange={(e) => { setPreferences(e.detail) }}
+                      onPreferencesChange={(e) => {
+                        setPreferences(e.detail);
+                      }}
                       onChange={(e) => {
                         setContext(e.detail.value);
                       }}
