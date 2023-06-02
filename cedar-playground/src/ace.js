@@ -85,12 +85,12 @@ ace.define(
           },
           {
             token: "variable.language",
-            regex: /(?:resource|principal|context|resource|action|this)/,
+            regex: /\b(?:resource|principal|context|resource|action|this)\b/,
           },
           {
             token: "keyword",
             regex:
-              /(?:forbid|permit|def|let|else|then|if|has|advice|is|where|in|unless|when|for)/,
+              /\b(?:forbid|permit|def|let|else|then|if|has|advice|is|where|in|unless|when|for)\b/,
           },
         ],
         string: [

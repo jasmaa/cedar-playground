@@ -27,12 +27,12 @@ const INITIAL_ACTION = `Action::"view"`;
 const INITIAL_RESOURCE = `Album::"trip"`;
 const INITIAL_CONTEXT = `{}`;
 const INITIAL_POLICY_SET = `permit(
-  principal == User::"alice",
-  action == Action::"view",
-  resource == Album::"trip"
+    principal == User::"alice",
+    action == Action::"view",
+    resource == Album::"trip"
 );`;
 const INITIAL_ENTITIES = `[
-  {
+    {
         "uid": {"type":"User","id":"alice"},
         "attrs": {
             "age":17,
