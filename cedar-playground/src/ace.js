@@ -3,14 +3,24 @@ import ace from "ace-builds";
 ace.define("ace/mode/cedar", [], function (require, exports, module) {
   var oop = require("ace/lib/oop");
   var TextMode = require("ace/mode/text").Mode;
-  var Tokenizer = require("ace/tokenizer").Tokenizer;
+  var MatchingBraceOutdent =
+    require("ace/mode/matching_brace_outdent").MatchingBraceOutdent;
+  var CstyleBehaviour = require("ace/mode/behaviour/cstyle").CstyleBehaviour;
+  var CStyleFoldMode = require("ace/mode/folding/cstyle").FoldMode;
   var CedarHighlightRules =
     require("ace/mode/cedar_highlight_rules").CedarHighlightRules;
 
   var Mode = function () {
     this.HighlightRules = CedarHighlightRules;
+    this.$outdent = new MatchingBraceOutdent();
+    this.$behaviour = new CstyleBehaviour();
+    this.foldingRules = new CStyleFoldMode();
   };
   oop.inherits(Mode, TextMode);
+
+  (function () {
+    this.$id = "ace/mode/cedar";
+  }).call(Mode.prototype);
 
   exports.Mode = Mode;
 });
