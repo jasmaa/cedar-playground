@@ -1,5 +1,8 @@
 import ace from "ace-builds";
 
+import jsonWorkerUrl from "ace-builds/src-min-noconflict/worker-json?url";
+ace.config.setModuleUrl("ace/mode/json_worker", jsonWorkerUrl);
+
 ace.define("ace/mode/cedar", [], function (require, exports, module) {
   var oop = require("ace/lib/oop");
   var TextMode = require("ace/mode/text").Mode;
@@ -28,13 +31,7 @@ ace.define("ace/mode/cedar", [], function (require, exports, module) {
 // TODO: improve highlighter: https://ace.c9.io/tool/mode_creator.html
 ace.define(
   "ace/mode/cedar_highlight_rules",
-  [
-    "require",
-    "exports",
-    "module",
-    "ace/lib/oop",
-    "ace/mode/text_highlight_rules",
-  ],
+  [],
   function (require, exports, module) {
     var oop = require("../lib/oop");
     var TextHighlightRules =
